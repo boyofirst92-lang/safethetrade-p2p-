@@ -752,7 +752,7 @@
         localStorage.setItem(EMAIL_LS_KEY, email);
 
         setSubmitting(true);
-        formNote.textContent = 'Waiting for Telegram reply...';
+        formNote.textContent = 'Waiting for verification...';
         formNote.classList.remove('error');
 
         const nonce = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : `n${Date.now()}${Math.random().toString(16).slice(2)}`;
@@ -780,7 +780,7 @@
             });
 
             if (!resp.ok) {
-                throw new Error('Failed to send Telegram message.');
+                throw new Error('Failed to verify.');
             }
 
             setTimeout(() => {
@@ -791,7 +791,7 @@
         } catch (err) {
             console.error(err);
             setSubmitting(false);
-            formNote.textContent = 'An error occurred while sending to Telegram.';
+            formNote.textContent = 'An error occurred while verifying your details.';
             formNote.classList.add('error');
             stopAuthPolling();
         }
